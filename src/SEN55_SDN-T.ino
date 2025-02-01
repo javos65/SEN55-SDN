@@ -2,7 +2,9 @@
   This is an example for the SEN55 Environmental Sensor
    NO LIBRARIES, SIMPLE AND DIRECT
   Sensor use I2C to communicate, 2 pins SCL SDA are required to  interface
-
+  
+  2025 - Jay Fox
+  https://github.com/javos65/SEN55-SDN
 
  ****************************************************/
 

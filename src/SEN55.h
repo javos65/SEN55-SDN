@@ -1,4 +1,12 @@
 
+/*************************************************** 
+  include file for SEN55
+  Sensor use I2C to communicate, 2 pins SCL SDA are required to  interface
+  
+  2025 - Jay Fox
+  https://github.com/javos65/SEN55-SDN
+
+ ****************************************************/
 
 #ifndef _SEN55_
 #define _SEN55_

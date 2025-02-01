@@ -2,11 +2,13 @@
 /*****************************************************************************
 * | File      	:	Debugf.h
 * | Function    :	Debug with C-style printf functionality
-* | Info        : JV 2024
+* | Info        :   JV 2024
 *----------------
 * |	This version:   V1.0
 * | Date        :   2024-01-16
 * | Info        :   Basic version
+*
+* https://github.com/javos65/Arduino-DEBUGF
 *
 ******************************************************************************/
 
