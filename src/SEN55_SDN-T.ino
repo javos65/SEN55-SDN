@@ -9,7 +9,9 @@
  ****************************************************/
 
 #include "SEN55.h"
-#include <DEBUGF.h>
+#include "DEBUGF.h"
+
+Sen55_Values MySensor;
 
 void setup() {
 /*********** Serial SETUP  **********/
@@ -26,17 +28,9 @@ InitSEN55();
 
 
 void loop() {
-if (!MeasureSEN55()) { DEBUGF("* Sensor error");}
-else {DEBUGF("Hum%% : %.2f, TempC: %.2f, VOCi : %.2f, NOXi : %.2f\nPM10 : %.2f, PM4.0: %.2f, PM2.5: %.2f, PM1.0: %.2f\nStatus [%08x]\n",
-      (float)G_Humidity,
-      (float)G_Temperature,
-      (float)G_Voc,
-      (float)G_Nox,
-      (float)G_PM10,
-      (float)G_PM4_0,
-      (float)G_PM2_5,      
-      (float)G_PM1_0,
-      G_Status);
+if (!MeasureSEN55(&MySensor)) { DEBUGF("* Sensor error");}
+else {DEBUGF("Hum%% : %.2f, TempC: %.2f, VOCi : %.2f, NOXi : %.2f\nPM10 : %.2f, PM1.0: %.2f, PM2.5: %.2f, PM4.0: %.2f\nStatus [%08x]\n",
+              MySensor.hum,MySensor.tmp,MySensor.voc,MySensor.nox,MySensor.pm10,MySensor.pm1_0,MySensor.pm2_5,MySensor.pm4_0,MySensor.status);
       }
 delay(4000);
 }

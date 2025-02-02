@@ -8,27 +8,13 @@
 
  ****************************************************/
 #include "SEN55.h"
-#include <DEBUGF.h>
-
+#include "DEBUGF.h"
 
 /*********** Sensor Structures  **********/
 struct Sen55_Cmd {     
 uint16_t command;  
 uint16_t delay;
 uint16_t size;
-};
-
-struct Sen55_Values {     
-float pm1_0;  
-float pm2_5;
-float pm4_0;
-float pm10;
-float hum;
-float tmp;
-float voc;
-float nox;
-uint16_t dummy;
-uint32_t status;
 };
 
 struct Sen55_Data {     
@@ -57,17 +43,7 @@ Sen55_Cmd CommandArray[9]= {    0x0021, 50, 0,     // Measure Start
                                 };
 
 /*********** Global Variables  **********/
-Sen55_Data   G_SensorData;
-Sen55_Values G_SensorValues;
-float G_Temperature=0;
-float G_Humidity=0;
-float G_PM10=0;
-float G_PM2_5=0;
-float G_PM4_0=0;
-float G_PM1_0;
-float G_Voc=0;
-float G_Nox=0;
-uint32_t G_Status=0;
+Sen55_Data   G_SensorData; // container containing all raw data from sensor
 
 uint8_t G_SensorBuffer[32], G_SensorSize=0;
 uint8_t G_CRC_error=0, G_Read_error=0;                                
@@ -148,27 +124,27 @@ else {DEBUGF("* Read Error\n");return(false);}
 
 
 // Map Sensor raw data into Global variables
-void  MapdataSEN55()
+void  MapdataSEN55(Sen55_Values *S)
 {
-  // Map global variables
-G_Humidity = (float)G_SensorData.hum/100;
-G_Temperature =  (float)G_SensorData.tmp/200;
-G_Voc = (float)G_SensorData.voc/10;
-G_Nox = (float)G_SensorData.nox/10;
-G_PM10 = (float)G_SensorData.pm10/10;
-G_PM1_0 = (float)G_SensorData.pm1_0/10;
-G_PM2_5 = (float)G_SensorData.pm2_5/10;
-G_PM4_0 = (float)G_SensorData.pm4_0/10;
+  // Map Sensor data to Real Sensor Values
+S->hum = (float)G_SensorData.hum/100;
+S->tmp =  (float)G_SensorData.tmp/200;
+S->voc = (float)G_SensorData.voc/10;
+S->nox = (float)G_SensorData.nox/10;
+S->pm10 = (float)G_SensorData.pm10/10;
+S->pm1_0 = (float)G_SensorData.pm1_0/10;
+S->pm2_5 = (float)G_SensorData.pm2_5/10;
+S->pm4_0 = (float)G_SensorData.pm4_0/10;
   // Map global Sensor Structure 
-G_SensorValues.hum=G_Humidity;
-G_SensorValues.tmp=G_Temperature;
-G_SensorValues.voc=G_Voc;
-G_SensorValues.nox=G_Nox;
-G_SensorValues.pm10=G_PM10;
-G_SensorValues.pm1_0=G_PM1_0;
-G_SensorValues.pm2_5=G_PM2_5;;
-G_SensorValues.pm4_0=G_PM4_0;
+}
 
+boolean StatusSEN55(Sen55_Values *S)
+{
+if (!ReadSEN55(SEN55_READSTATUS)) return(false);
+G_SensorData.status= ((uint32_t) G_SensorBuffer[3]<<24)&0xFF000000 + ((uint32_t) G_SensorBuffer[2]<<16)&0x00FF0000  + ((uint32_t) G_SensorBuffer[1]<<8)&0x0000FF00 + ((uint32_t) G_SensorBuffer[0])&0x000000FF;
+S->status = G_SensorData.status;
+//DEBUGF("* Status[%08x]\n",G_SensorData.status);
+return(true);
 }
 
 // stop measurement, set SEN55 into idle mode
@@ -193,13 +169,13 @@ return(true);
 }
 
 // Do Measurement, read data, read statusregister, map it into Structures
-boolean MeasureSEN55()
+boolean MeasureSEN55(struct Sen55_Values *S)
 {
-uint8_t *d = (uint8_t *) &G_SensorData;  
+uint8_t *d = (uint8_t *) &G_SensorData; // make pointer to Sensor data container  
 if (!ReadSEN55(SEN55_CLRSTATUS)) return(false);
 if (!ReadSEN55(SEN55_STARTMEASURE)) return(false);
 delay(2000);
-if(!StatusSEN55()) return(false);  
+if(!StatusSEN55(S)) return(false);  
 if (!ReadSEN55(SEN55_READYFLAG)) return(false);
 if(G_SensorBuffer[1]==0x01) { // Measure flag =1
   if(ReadSEN55(SEN55_SENSORREAD) )
@@ -208,21 +184,13 @@ if(G_SensorBuffer[1]==0x01) { // Measure flag =1
         *( d + (2*i)) = *(G_SensorBuffer + (2*i) + 1);  // Map data into Data structure,
         *( d + (2*i) +1) = *(G_SensorBuffer + (2*i));   // Convert big Endian to little endian
           } 
-      MapdataSEN55();  
+
+      MapdataSEN55(S);  // map dat acontainer into passed values container
       return(true);
     }
   else return(false);
   }
 return(false);
-}
-
-boolean StatusSEN55()
-{
-if (!ReadSEN55(SEN55_READSTATUS)) return(false);
-G_SensorData.status= ((uint32_t) G_SensorBuffer[3]<<24)&0xFF000000 + ((uint32_t) G_SensorBuffer[2]<<16)&0x00FF0000  + ((uint32_t) G_SensorBuffer[1]<<8)&0x0000FF00 + ((uint32_t) G_SensorBuffer[0])&0x000000FF;
-G_Status=G_SensorData.status;
-//DEBUGF("* Status[%08x]\n",G_SensorData.status);
-return(true);
 }
 
 

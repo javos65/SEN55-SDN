@@ -12,7 +12,7 @@
 #define _SEN55_
 
 #include <Wire.h>
-#include <DEBUGF.h>
+#include "DEBUGF.h"
 
 #define MyWire Wire2
 /*********** Sensor Defines  **********/
@@ -27,22 +27,21 @@
 #define SEN55_READYFLAG     8
 #define I2CADDRESS      0x69
 
-extern Sen55_Values G_SensorValues;
-extern float G_Temperature;
-extern float G_Humidity;
-extern float G_PM10;
-extern float G_PM2_5;
-extern float G_PM4_0;
-extern float G_PM1_0;
-extern float G_PM25;
-extern float G_Voc;
-extern float G_Nox;
-extern uint32_t G_Status;
+struct Sen55_Values {     
+float pm1_0;  
+float pm2_5;
+float pm4_0;
+float pm10;
+float hum;
+float tmp;
+float voc;
+float nox;
+uint16_t dummy;
+uint32_t status;
+};
 
-extern boolean MeasureSEN55();
+extern boolean MeasureSEN55(struct Sen55_Values *S);
 extern boolean InitSEN55();
 extern boolean IdleSEN55();
-extern boolean MeasureSEN55();
-extern boolean StatusSEN55();
 
 #endif
