@@ -5,7 +5,7 @@
 You'll need to connect the SDA and SCL pins of the sensor to the corresponding SDA and SCL pins on your microcontroller.<BR>
 Connect 5V(!) and Gnd to power lines, see example of Eval board<BR>
 I2C Bus Address is 0x69<BR>
-<br><br>
+<br>
 + ![Board](/images/SEN55.jpg?raw=true)
 <br><br>
 More info :<BR>
